@@ -1,24 +1,27 @@
+package wordCount;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class asciiCount {
+public class AsciiCount {
     private final int BUFFER_SIZE = 4096;
-    private static InputStreamReader inputStreamReader;
+    protected static InputStreamReader inputStreamReader;
     private char [] charBuffer = new char[BUFFER_SIZE];
-    asciiCount(InputStream inputStream) {
+    public AsciiCount(InputStream inputStream) {
         this.inputStreamReader = new InputStreamReader(inputStream);
     }
-    private static boolean isAscii(char c) {
+    protected static boolean isAscii(char c) {
         return c >= 0 && c <= 127;
 
     }
-    public static int count() throws IOException {
+    public int count() throws IOException {
         char c;
         int count = 0;
         while ((c = (char)inputStreamReader.read()) != (char)-1) {
             if (isAscii(c)) {
                 count++;
+                System.out.println("get char: " + (int)c);
             }
         }
         return count;

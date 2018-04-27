@@ -1,19 +1,29 @@
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.runner.RunWith;
+package test;
 
-import static org.junit.Assert.*;
+import wordCount.AsciiCount;
 
-@RunWith(Arquillian.class)
-public class asciiCountTest {
-    @Deployment
-    public static JavaArchive createDeployment() {
-        return ShrinkWrap.create(JavaArchive.class)
-                .addClass(asciiCount.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+public class AsciiCountTest {
+    AsciiCountTest() {}
+    public static void main(String args[]) throws FileNotFoundException, IOException {
+        String [] tests = {
+                "7:src/test/textsForAsciiCount/test1.txt",
+                "5:src/test/textsForAsciiCount/test2chinese.txt"
+        };
+        for (String test : tests) {
+            String [] splitted = test.split(":");
+            String fileAddr = splitted[1];
+            int expect = Integer.parseInt(splitted[0]);
+            FileInputStream file = new FileInputStream(fileAddr);
+            AsciiCount counter = new AsciiCount(file);
+            int count  = counter.count();
+            System.out.println(fileAddr + ": "  + (expect == count));
+            if (count != expect) {
+                System.out.println("count == " + count + ", while expected count == " + expect);
+            }
+        }
     }
-
 }
