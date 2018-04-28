@@ -112,6 +112,7 @@ public class Main {
     private static void printWords(HashMap<String, Integer> wordCountResult) {
         WordEntry [] outputs = new WordEntry[wordCountResult.size()];
         Iterator<Map.Entry<String, Integer>> iterator = wordCountResult.entrySet().iterator();
+        System.out.println(wordCountResult);
         int i = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
@@ -121,12 +122,18 @@ public class Main {
         Arrays.sort(outputs);
         ArrayList<WordEntry> wordEntries = new ArrayList<>();
         WordEntry last = null;
+        int count = 0;
         for (int k = 0; k < outputs.length; k++) {
             if (last == null || last.count != outputs[k].count) {
                 wordEntries.add(outputs[k]);
                 last  = outputs[k];
+                count++;
+                if (count >= wordLimit) {
+                    break;
+                }
             }
         }
+        // System.out.println(wordEntries);
         WordEntry.sortOnCount = false;
         wordEntries.sort(null);
         for (int k = 0; k < Math.min(wordLimit, wordEntries.size()); k++) {
