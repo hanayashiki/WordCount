@@ -197,18 +197,17 @@ public class WordCount extends AsciiCount {
         } else {
             c = fileListReader.read();
         }
+        char d = (char)c;
         if ((char) c == '\n' || (c == -1)) {
-            if (noneEmptyLine) {
-                lineCount++;
-                noneEmptyLine = false;
-            }
+            noneEmptyLine = false;
         }
         if (isAscii((char) c)) {
             asciiCount++;
         }
-        if ((char) c != '\t' && (char) c != ' ' && (char) c != '\n' && (char) c != '\r' && noneEmptyLine == false) {
+        if ((char) c != '\t' && (char) c != ' ' && (char) c != '\n' && (char) c != '\r' && c != -1 && noneEmptyLine == false) {
             // System.out.println((char)c);
             noneEmptyLine = true;
+            lineCount++;
         }
         return c;
     }
