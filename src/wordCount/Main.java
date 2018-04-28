@@ -112,7 +112,7 @@ public class Main {
     private static void printWords(HashMap<String, Integer> wordCountResult) {
         WordEntry [] outputs = new WordEntry[wordCountResult.size()];
         Iterator<Map.Entry<String, Integer>> iterator = wordCountResult.entrySet().iterator();
-        System.out.println(wordCountResult);
+        // System.out.println(wordCountResult);
         int i = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
