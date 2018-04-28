@@ -11,6 +11,9 @@ public class AsciiCount {
     public AsciiCount(InputStream inputStream) {
         this.inputStreamReader = new InputStreamReader(inputStream);
     }
+    public AsciiCount() {
+
+    }
     protected static boolean isAscii(char c) {
         return c >= 0 && c <= 127;
 

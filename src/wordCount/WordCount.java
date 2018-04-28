@@ -1,7 +1,7 @@
 package wordCount;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,7 +12,9 @@ class Token {
     enum Tag {
         WORD,
         SPLITTER
-    };
+    }
+
+    ;
     private Tag tag;
 
     Token(String string, Tag tag) {
@@ -59,6 +61,7 @@ class Phrase implements Comparable<Phrase> {
         }
         return hash;
     }
+
     @Override
     public boolean equals(Object object) {
         if (!(object instanceof Phrase)) {
@@ -80,12 +83,15 @@ class Phrase implements Comparable<Phrase> {
             }
         }
     }
+
     public void add(String string) {
         words.add(string);
     }
+
     public int getSize() {
         return words.size();
     }
+
     public Phrase generateNextBase() {
         Phrase newPhrase = new Phrase();
         Iterator<String> iter = this.words.iterator();
@@ -95,12 +101,50 @@ class Phrase implements Comparable<Phrase> {
         }
         return newPhrase;
     }
+
     @Override
     public String toString() {
         return String.join(" ", words);
     }
+
     public int compareTo(Phrase phrase) {
         return new Integer(getCount()).compareTo(phrase.getCount());
+    }
+}
+
+class FileListReader {
+    private ArrayList<String> fileList;
+    InputStreamReader currentReader;
+    int filePtr = 0;
+    boolean end = false;
+
+    FileListReader(ArrayList<String> list) throws FileNotFoundException {
+        fileList = list;
+        if (list.size() > 0) {
+            currentReader = new InputStreamReader(new FileInputStream(fileList.get(filePtr++)));
+        } else {
+            end = true;
+        }
+    }
+
+    public int read() throws IOException {
+        int c;
+        if (end) {
+            return -1;
+        } else {
+            c = currentReader.read();
+            // System.out.println((char)c);
+            if (c == -1) {
+                if (filePtr < fileList.size()) {
+                    currentReader = new InputStreamReader(new FileInputStream(fileList.get(filePtr++)));
+                    return '\n';
+                } else {
+                    end = true;
+                    return -1;
+                }
+            }
+            return c;
+        }
     }
 }
 
@@ -113,62 +157,68 @@ public class WordCount extends AsciiCount {
 
     private boolean noneEmptyLine = false;
 
+
+    private boolean traveseDirectory = false;
+    private FileListReader fileListReader;
+
+
     public WordCount(InputStream inputStream) {
         super(inputStream);
     }
+
     public WordCount(InputStream inputStream, int phraseLength) {
         super(inputStream);
         this.phraseLength = phraseLength;
         Phrase.wordCount = this;
     }
+
+    public WordCount(ArrayList<String> pathList, int phraseLength) throws IOException {
+        super();
+        this.phraseLength = phraseLength;
+        Phrase.wordCount = this;
+        traveseDirectory = true;
+        fileListReader = new FileListReader(pathList);
+        asciiCount = -pathList.size() + 1; // In each pathList EOF is considered a char
+    }
+
     public static boolean isAlpha(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
+
     public static boolean isDigit(char c) {
         return (c >= '0' && c <= '9');
     }
+
     private int read() throws IOException {
-        int c = inputStreamReader.read();
-        if ((char)c == '\n' || (c == -1)) {
+        int c;
+        if (traveseDirectory == false) {
+            c = inputStreamReader.read();
+        } else {
+            c = fileListReader.read();
+        }
+        if ((char) c == '\n' || (c == -1)) {
             if (noneEmptyLine) {
                 lineCount++;
                 noneEmptyLine = false;
             }
         }
-        if (isAscii((char)c)) {
+        if (isAscii((char) c)) {
             asciiCount++;
         }
-        if ((char)c != '\t' && (char)c != ' ' && (char)c != '\n'  && (char)c != '\r' && noneEmptyLine == false) {
+        if ((char) c != '\t' && (char) c != ' ' && (char) c != '\n' && (char) c != '\r' && noneEmptyLine == false) {
             // System.out.println((char)c);
             noneEmptyLine = true;
         }
         return c;
     }
+
     private Token getToken() throws IOException {
         StringBuilder tokenString = new StringBuilder();
         char c;
         boolean wordStart = false;
-        while ((c = (char)read()) != (char)-1) {
+        while ((c = (char) read()) != (char) -1) {
             if (wordStart == false) {
-                if (!isAlpha(c)) {
-                    if (isDigit(c)) {
-                        char last = c;
-                        while (true) {
-                            last = c;
-                            c = (char)read();
-                            if (c == (char)-1) {
-                                return null;
-                            }
-                            if (!(isAlpha(last) || isDigit(last)) && isAlpha(c)) {
-                                tokenString.append(Character.toLowerCase(c));
-                                wordStart = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        continue;
-                    }
-                } else {
+                if ((isAlpha(c) || isDigit(c))) {
                     tokenString.append(Character.toLowerCase(c));
                     wordStart = true;
                 }
@@ -186,6 +236,7 @@ public class WordCount extends AsciiCount {
             return null;
         }
     }
+
     public void countWords() throws IOException {
         HashMap<String, Integer> wordResult = new HashMap<>();
         HashMap<Phrase, Integer> phraseResult = new HashMap<>();

@@ -1,13 +1,8 @@
 package wordCount;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
+
 
 class BadArgumentException extends Exception {
     String message;
@@ -17,20 +12,25 @@ class BadArgumentException extends Exception {
 }
 
 public class Main {
-    static boolean countPhrase = false;
-    static int phraseLength = 0;
-    static int wordLimit = 10;
-    static boolean recursive = false;
-    static String fileAddr = "";
-    static String dirAddr = "";
+    private static boolean countPhrase = false;
+    private static int phraseLength = 0;
+    private static int wordLimit = 10;
+    private static boolean recursive = false;
+    private static String fileAddr = "";
+    private static String dirAddr = "";
 
-    private static void parsePath(String string) throws BadArgumentException {
+    private static ArrayList<String> pathList = new ArrayList<String>();
+
+    private static void parsePath(String string, Boolean isFile) throws BadArgumentException {
         fileAddr = string;
+        dirAddr = string;
         if (!new File(fileAddr).exists()) {
             throw new BadArgumentException("File does not exist.");
         } else {
-            if (new File(fileAddr).isDirectory()) {
+            if (new File(fileAddr).isDirectory() && isFile) {
                 throw new BadArgumentException("Unexpected directory path.");
+            } else if (new File(fileAddr).isFile() && !isFile) {
+                throw new BadArgumentException("Unexpected file path.");
             }
         }
     }
@@ -41,25 +41,42 @@ public class Main {
                 countPhrase = true;
                 try {
                     phraseLength = Integer.parseInt(args[1]);
+                    if (phraseLength <= 0) {
+                        throw new BadArgumentException("Invalid phrase length.");
+                    }
                 } catch (NumberFormatException e) {
                     throw new BadArgumentException("NumberFormatException.");
                 }
-                parsePath(args[2]);
+                parsePath(args[2], true);
             } else if (args[0].equals("-n")) {
                 try {
                     wordLimit = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
                     throw new BadArgumentException("NumberFormatException.");
                 }
-                parsePath(args[2]);
+                parsePath(args[2], true);
             } else if (args[0].equals("-r")) {
                 recursive = true;
-                parsePath(args[1]);
+                parsePath(args[1], false);
             } else {
-                parsePath(args[0]);
+                parsePath(args[0], true);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new BadArgumentException("too few arguments.");
+        }
+    }
+
+    private static void traverseDirectory(String dir) {
+        File root = new File(dir);
+        File [] files = root.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    pathList.add(file.getAbsolutePath());
+                } else if (file.isDirectory()) {
+                    traverseDirectory(file.getAbsolutePath());
+                }
+            }
         }
     }
 
@@ -92,7 +109,7 @@ public class Main {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws FileNotFoundException  {
         try {
             parseArgs(args);
         } catch (BadArgumentException e) {
@@ -100,7 +117,14 @@ public class Main {
             return;
         }
         try {
-            WordCount counter = new WordCount(new FileInputStream(fileAddr), phraseLength);
+            WordCount counter;
+            if (recursive == false) {
+                counter = new WordCount(new FileInputStream(fileAddr), phraseLength);
+            } else {
+                traverseDirectory(dirAddr);
+                counter = new WordCount(pathList, phraseLength);
+            }
+            System.setOut(new PrintStream(new FileOutputStream(new File("result.txt"))));
             counter.countWords();
             System.out.println("characters: " + counter.asciiCount);
             System.out.println("lines: " + counter.lineCount);
