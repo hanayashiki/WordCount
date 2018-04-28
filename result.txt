@@ -1,6 +1,12 @@
-characters: 31
-lines: 3
-words: 5
-bbbb aaaa: 1
-aaaa bbbb: 1
-aaaa aaaa: 1
+characters: 205
+lines: 7
+words: 15
+aaaa: 2
+abbbb123: 1
+abcde: 3
+abcdewqe1: 3
+backprop2012: 1
+bbbb: 2
+ooop2321: 1
+sadsad: 1
+sadsads: 1

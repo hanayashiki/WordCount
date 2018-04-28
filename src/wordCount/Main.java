@@ -124,7 +124,7 @@ public class Main {
                 traverseDirectory(dirAddr);
                 counter = new WordCount(pathList, phraseLength);
             }
-            // System.setOut(new PrintStream(new FileOutputStream(new File("result.txt"))));
+            System.setOut(new PrintStream(new FileOutputStream(new File("result.txt"))));
             counter.countWords();
             System.out.println("characters: " + counter.asciiCount);
             System.out.println("lines: " + counter.lineCount);
