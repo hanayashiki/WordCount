@@ -108,7 +108,11 @@ class Phrase implements Comparable<Phrase> {
     }
 
     public int compareTo(Phrase phrase) {
-        return new Integer(getCount()).compareTo(phrase.getCount());
+        int count = new Integer(getCount()).compareTo(phrase.getCount());
+        if (count == 0) {
+            return - String.join(" ", this.words).compareTo(String.join(" ", phrase.words));
+        }
+        return count;
     }
 }
 

@@ -11,6 +11,35 @@ class BadArgumentException extends Exception {
     }
 }
 
+class WordEntry implements Comparable<WordEntry> {
+    String word;
+    int count;
+    static boolean sortOnCount = true;
+
+    WordEntry(String word, int count) {
+        this.word = word;
+        this.count = count;
+    }
+
+    @Override
+    public int compareTo(WordEntry o) {
+        if (sortOnCount) {
+            int countResult = -(new Integer(count).compareTo(o.count));
+            if (countResult == 0) {
+                return word.compareTo(o.word);
+            }
+            return countResult;
+        } else {
+            return word.compareTo(o.word);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return word + ": " + count;
+    }
+}
+
 public class Main {
     private static boolean countPhrase = false;
     private static int phraseLength = 0;
@@ -81,16 +110,27 @@ public class Main {
     }
 
     private static void printWords(HashMap<String, Integer> wordCountResult) {
-        String [] outputs = new String[wordCountResult.size()];
+        WordEntry [] outputs = new WordEntry[wordCountResult.size()];
         Iterator<Map.Entry<String, Integer>> iterator = wordCountResult.entrySet().iterator();
         int i = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
-            outputs[i++] = entry.getKey() + ": " + entry.getValue();
+            outputs[i++] = new WordEntry(entry.getKey(), entry.getValue());
         }
+        WordEntry.sortOnCount = true;
         Arrays.sort(outputs);
-        for (int j = 0; j < Math.min(outputs.length, wordLimit); j++) {
-            System.out.println(outputs[j]);
+        ArrayList<WordEntry> wordEntries = new ArrayList<>();
+        WordEntry last = null;
+        for (int k = 0; k < outputs.length; k++) {
+            if (last == null || last.count != outputs[k].count) {
+                wordEntries.add(outputs[k]);
+                last  = outputs[k];
+            }
+        }
+        WordEntry.sortOnCount = false;
+        wordEntries.sort(null);
+        for (int k = 0; k < Math.min(wordLimit, wordEntries.size()); k++) {
+            System.out.println(wordEntries.get(k));
         }
     }
 
