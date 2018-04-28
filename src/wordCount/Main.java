@@ -104,7 +104,7 @@ public class Main {
             //System.out.println("copying: " + phr + ": " + phr.getCount());
         }
         Arrays.sort(outputs);
-        for (int j = Math.max(outputs.length, outputs.length - wordLimit) - 1; j >= 0; j--) {
+        for (int j = outputs.length - 1; j >= 0; j--) {
             System.out.println(outputs[j] + ": " + outputs[j].getCount());
         }
     }
@@ -128,7 +128,7 @@ public class Main {
             counter.countWords();
             System.out.println("characters: " + counter.asciiCount);
             System.out.println("lines: " + counter.lineCount);
-            System.out.println("words: " + counter.wordCountResult.size());
+            System.out.println("words: " + counter.totalWords);
             if (!countPhrase) {
                 printWords(counter.wordCountResult);
             } else {

@@ -153,6 +153,7 @@ public class WordCount extends AsciiCount {
     public HashMap<Phrase, Integer> phraseCountResult;
     public int lineCount = 0;
     public int asciiCount = 0;
+    public int totalWords = 0;
     private int phraseLength = 1;
 
     private boolean noneEmptyLine = false;
@@ -244,6 +245,7 @@ public class WordCount extends AsciiCount {
         Token token;
         while ((token = getToken()) != null) {
             if (token.isWord()) {
+                totalWords++;
                 if (!wordResult.containsKey(token.getString())) {
                     wordResult.put(token.getString(), 1);
                 } else {
